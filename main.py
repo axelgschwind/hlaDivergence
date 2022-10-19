@@ -52,10 +52,13 @@ def grantham_distance(seq1: Seq, seq2: Seq):
 
 	return aa_distance/total_length
 
+def get_hla_locus(name: str):
+	parts = name.replace("HLA-","").split("*")
+	return parts[0]
+
 
 def main(argv):
 	parser = OptionParser(usage="usage: %prog [options] HLA-ALLELE1 HLA-ALLELE2", description="Calculates HLA diversity metrics. Pass allele names according HLA nomenclature.")
-
 
 	(options, args) = parser.parse_args()
 	if(len(args) != 2):
@@ -64,8 +67,15 @@ def main(argv):
 	allele2 = args[1]
 
 	#aligned AA sequences
-	protein_alignments = AlignIO.read("data/A_prot.msf", "msf")
 
+
+	locus = get_hla_locus(allele1)
+	locus2 = get_hla_locus(allele2)
+	if locus != locus2:
+		raise Exception("The loci HLA-%s and HLA-%s must be the same" % (locus, locus2))
+
+	#IMGT/HLA protein aligments
+	protein_alignments = AlignIO.read("data/%s_prot.msf" % locus, "msf")
 
 	seq1 = get_protein_sequence(allele1, protein_alignments)
 	seq2 = get_protein_sequence(allele2, protein_alignments)
