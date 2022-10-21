@@ -1,8 +1,7 @@
 import sys
 from optparse import OptionParser
-from typing import Sequence
 import pandas as pd
-from Bio import AlignIO, SeqRecord
+from Bio import AlignIO
 from Bio.Seq import Seq
 
 
@@ -19,13 +18,14 @@ def parse_allele_name(allele: str):
 
 
 #exon coordinates are compatible with IMGT/HLA protein aligments. Exon 2/3 form binding grooves of MHC class I. Exon 2 forms binding groove of MHC class II
+#exonic "borders" were taken from CCDS and they exclude AA along splicing junctions
 _binding_groove_coords = {
-	"A": slice(26,228),
-	"B": slice(30,241),
-	"C": slice(24,235),
-	"DQA1": slice(27,111),
-	"DQB1": slice(36,127),
-	"DRB1": slice(33,127)
+	"A": slice(27,227),
+	"B": slice(31,239),
+	"C": slice(25,232),
+	"DQA1": slice(28,110),
+	"DQB1": slice(37,126),
+	"DRB1": slice(34,125)
 }
 #return first allele that matches four digits allele
 def get_protein_sequence(allele, alignments: AlignIO.MultipleSeqAlignment, whole_protein: bool=False):
@@ -66,10 +66,31 @@ def grantham_distance(seq1: Seq, seq2: Seq):
 
 	return aa_distance/total_length
 
+
+def p_distance(seq1: Seq, seq2: Seq):
+	global _grantham_matrix
+	if(len(seq1) != len(seq2)):
+		raise Exception("Alignemnts of equal length are neccessary to calculate pDistance!")
+
+	total_length = 0
+	aa_distance = 0
+
+	for index,aa1 in enumerate(seq1):
+		aa2 = seq2[index]
+		#ignore unknown amino acids (i.e. insertions and deletions)
+		if aa1 not in _grantham_matrix.columns or aa2 not in _grantham_matrix.columns:
+			continue
+		total_length += 1
+
+		if aa1 != aa2:
+			aa_distance += 1
+
+	return aa_distance/total_length
+
+
 def get_hla_locus(name: str):
 	parts = name.replace("HLA-","").split("*")
 	return parts[0]
-
 
 
 def main(argv):
@@ -95,7 +116,9 @@ def main(argv):
 
 	seq1 = get_protein_sequence(allele1, protein_alignments, options.whole_protein)
 	seq2 = get_protein_sequence(allele2, protein_alignments, options.whole_protein)
-	print(grantham_distance(seq1, seq2))
+
+	print(seq1[_binding_groove_coords["DRB1"]])
+	print(grantham_distance(seq1, seq2), " ", p_distance(seq1,seq2))
 
 if __name__ == "__main__":
 	main(sys.argv)
