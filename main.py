@@ -1,8 +1,11 @@
+import enum
 import sys
 from optparse import OptionParser
 import pandas as pd
 from Bio import AlignIO
 from Bio.Seq import Seq
+from scipy.spatial.distance import pdist, squareform
+
 
 
 #Brings allele id to the form A*01:01, i.e. nomenclature for 4 digits without "HLA-"
@@ -66,6 +69,32 @@ def grantham_distance(seq1: Seq, seq2: Seq):
 
 	return aa_distance/total_length
 
+_sandberg_matrix = pd.DataFrame()
+def sandberg_distance(seq1: Seq, seq2: Seq):
+	global _sandberg_matrix
+	if(len(_sandberg_matrix) == 0):
+		#get z values from Sandberg et al. original paper
+		sandberg_z_values = pd.read_csv("data/sandberg.tsv", sep="\t", header=0, index_col=0, comment='#')
+		# calculate euclidian distance between the vectors of all amino acids
+		_sandberg_matrix = pd.DataFrame(squareform( pdist(sandberg_z_values) ), index=sandberg_z_values.index.values, columns = sandberg_z_values.index.values )
+	
+	if len(seq1) != len(seq2):
+		raise Exception("Alignemnts of equal length are neccessary to calculate Sandberg distance!")
+	total_length = 0
+	aa_distance = 0
+
+	for index,aa1 in enumerate(seq1):
+		aa2 = seq2[index]
+		#ignore unknown amino acids (i.e. insertions and deletions)
+		if aa1 not in _sandberg_matrix.columns or aa2 not in _sandberg_matrix.columns:
+			continue
+		total_length += 1
+
+		if aa1 != aa2:
+			aa_distance += _sandberg_matrix[aa1][aa2]
+
+	return aa_distance / total_length
+
 
 def p_distance(seq1: Seq, seq2: Seq):
 	global _grantham_matrix
@@ -117,8 +146,7 @@ def main(argv):
 	seq1 = get_protein_sequence(allele1, protein_alignments, options.whole_protein)
 	seq2 = get_protein_sequence(allele2, protein_alignments, options.whole_protein)
 
-	print(seq1[_binding_groove_coords["DRB1"]])
-	print(grantham_distance(seq1, seq2), " ", p_distance(seq1,seq2))
+	print(grantham_distance(seq1, seq2), " ", p_distance(seq1,seq2), " ", sandberg_distance(seq1,seq2))
 
 if __name__ == "__main__":
 	main(sys.argv)
