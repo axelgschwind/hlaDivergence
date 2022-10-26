@@ -11,7 +11,7 @@ from scipy.spatial.distance import pdist, squareform
 def parse_allele_name(allele: str):
 	(locus, parts) = allele.strip().replace("HLA-","").split("*")
 	parts = parts.split(":")
-	if len(parts) == 0 or len(parts) > 4:
+	if len(parts) == 0 or len(parts) > 5:
 		raise Exception("Cannot parse HLA string " + allele)
 	if len(parts) == 1:
 		parts.append("01")
@@ -93,6 +93,7 @@ def sandberg_distance(seq1: Seq, seq2: Seq):
 			aa_distance += _sandberg_matrix[str(aa1)][str(aa2)]
 
 	return aa_distance / total_length
+
 
 
 def p_distance(seq1: Seq, seq2: Seq):
