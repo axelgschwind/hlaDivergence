@@ -7,7 +7,6 @@ from Bio.Seq import Seq
 from scipy.spatial.distance import pdist, squareform
 
 
-
 #Brings allele id to the form A*01:01, i.e. nomenclature for 4 digits without "HLA-"
 def parse_allele_name(allele: str):
 	(locus, parts) = allele.strip().replace("HLA-","").split("*")
@@ -38,8 +37,6 @@ def get_protein_sequence(allele, alignments: AlignIO.MultipleSeqAlignment, whole
 			if whole_protein:
 				return alignment.seq
 			return alignment.seq[ _binding_groove_coords[get_hla_locus(allele)] ]
-	print(allele)
-	print(alignments)
 	raise Exception("Could not find alignment for %s" %allele)
 
 
