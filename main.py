@@ -3,8 +3,10 @@ from os.path import exists
 from optparse import OptionParser
 import pandas as pd
 from Bio import AlignIO
-from Bio.Seq import Seq
+from Bio.Seq import Seq, MutableSeq
 from scipy.spatial.distance import pdist, squareform
+from Bio.Phylo.TreeConstruction import DistanceCalculator
+from Bio.SeqRecord import SeqRecord
 
 
 #Brings allele id to the form A*01:01, i.e. nomenclature for 4 digits without "HLA-"
@@ -17,7 +19,6 @@ def parse_allele_name(allele: str):
 		parts.append("01")
 
 	return locus + "*" + ":".join(parts[0:2])
-
 
 #exon coordinates are compatible with IMGT/HLA protein aligments. Exon 2/3 form binding grooves of MHC class I. Exon 2 forms binding groove of MHC class II
 #exonic "borders" were taken from CCDS and they exclude AA along splicing junctions
@@ -94,8 +95,6 @@ def sandberg_distance(seq1: Seq, seq2: Seq):
 
 	return aa_distance / total_length
 
-
-
 def p_distance(seq1: Seq, seq2: Seq):
 	global _grantham_matrix
 	if(len(seq1) != len(seq2)):
@@ -115,6 +114,27 @@ def p_distance(seq1: Seq, seq2: Seq):
 			aa_distance += 1
 
 	return aa_distance/total_length
+
+#calculate protein distance based on PAM matrices and phylogenetic trees
+def phylo_distance(seq1: Seq, seq2: Seq, method = "dayhoff"):
+	#remove alignment gaps to be consistent with other distance methods in this script
+	trimmed_seq1 = MutableSeq("")
+	trimmed_seq2 = MutableSeq("")
+	for index,aa1 in enumerate(str(seq1)):
+		aa2 = seq2[index]
+		if(aa1 == "-" or aa2 == "-"):
+			continue
+		trimmed_seq1.append(aa1)
+		trimmed_seq2.append(aa2)
+
+	#Create distance matrix
+	seqrec1 = SeqRecord(trimmed_seq1, id="a1", name="a1", )
+	seqrec2 = SeqRecord(trimmed_seq2, id="a2", name="a2")
+	input_aln = AlignIO.MultipleSeqAlignment([seqrec1, seqrec2])
+	calculator = DistanceCalculator(method)
+	dist_matrix = calculator.get_distance(input_aln)
+	
+	return dist_matrix["a1","a2"]
 
 
 def get_hla_locus(name: str):
@@ -153,7 +173,7 @@ def main(argv):
 		seq1 = get_protein_sequence(allele1, protein_alignments, options.whole_protein)
 		seq2 = get_protein_sequence(allele2, protein_alignments, options.whole_protein)
 
-		print(grantham_distance(seq1, seq2), "\t", p_distance(seq1,seq2), "\t", sandberg_distance(seq1,seq2))
+		print(grantham_distance(seq1, seq2), p_distance(seq1,seq2), sandberg_distance(seq1,seq2), phylo_distance(seq1,seq2, "dayhoff"), phylo_distance(seq1,seq2, "jones"), sep='\t')
 	else: #input batch alleles
 		file = open(options.filename, "r")
 
