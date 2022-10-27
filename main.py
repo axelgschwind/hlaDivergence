@@ -8,7 +8,6 @@ from scipy.spatial.distance import pdist, squareform
 from Bio.Phylo.TreeConstruction import DistanceCalculator
 from Bio.SeqRecord import SeqRecord
 
-
 #Brings allele id to the form A*01:01, i.e. nomenclature for 4 digits without "HLA-"
 def parse_allele_name(allele: str):
 	(locus, parts) = allele.strip().replace("HLA-","").split("*")
@@ -133,9 +132,8 @@ def phylo_distance(seq1: Seq, seq2: Seq, method = "dayhoff"):
 	input_aln = AlignIO.MultipleSeqAlignment([seqrec1, seqrec2])
 	calculator = DistanceCalculator(method)
 	dist_matrix = calculator.get_distance(input_aln)
-	
-	return dist_matrix["a1","a2"]
 
+	return dist_matrix['a1','a2']
 
 def get_hla_locus(name: str):
 	parts = name.replace("HLA-","").split("*")
@@ -173,7 +171,7 @@ def main(argv):
 		seq1 = get_protein_sequence(allele1, protein_alignments, options.whole_protein)
 		seq2 = get_protein_sequence(allele2, protein_alignments, options.whole_protein)
 
-		print(grantham_distance(seq1, seq2), p_distance(seq1,seq2), sandberg_distance(seq1,seq2), phylo_distance(seq1,seq2, "dayhoff"), phylo_distance(seq1,seq2, "jones"), sep='\t')
+		print(allele1, allele2, round(grantham_distance(seq1, seq2), 5), round(p_distance(seq1,seq2), 5), round(sandberg_distance(seq1,seq2), 5), round(phylo_distance(seq1,seq2, "dayhoff"), 5), round(phylo_distance(seq1,seq2, "jones"), 5),  sep='\t')
 	else: #input batch alleles
 		file = open(options.filename, "r")
 
