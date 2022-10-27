@@ -156,7 +156,7 @@ def main(argv):
 	elif(len(args) != 2 and options.filename == None):
 		raise Exception("Specify two HLA alleles!")
 
-	print("#ALLELE1", "ALLELE2", "GRANTHAM", "PDISTANCE", "SANDBERG", sep='\t')
+	print("#ALLELE1", "ALLELE2", "GRANTHAM", "PDISTANCE", "SANDBERG", "DAYHOFF", "JTT", sep='\t')
 
 	if(len(args) == 2): #input command line alleles
 		allele1 = args[0]
@@ -201,7 +201,7 @@ def main(argv):
 			seq1 = get_protein_sequence(allele1, protein_alignments[locus], options.whole_protein)
 			seq2 = get_protein_sequence(allele2, protein_alignments[locus], options.whole_protein)
 
-			print(allele1, allele2, round(grantham_distance(seq1, seq2), 5), round(p_distance(seq1,seq2), 5), round(sandberg_distance(seq1,seq2), 5), sep='\t')
+			print(allele1, allele2, round(grantham_distance(seq1, seq2), 5), round(p_distance(seq1,seq2), 5), round(sandberg_distance(seq1,seq2), 5), round(phylo_distance(seq1,seq2, "dayhoff"), 5), round(phylo_distance(seq1,seq2, "jones"), 5),  sep='\t')
 
 if __name__ == "__main__":
 	main(sys.argv)
