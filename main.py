@@ -1,4 +1,5 @@
 import sys
+import os
 from os.path import exists
 from optparse import OptionParser
 import pandas as pd
@@ -46,7 +47,7 @@ def grantham_distance(seq1: Seq, seq2: Seq):
 	#initialize grantham matrix with values stored in grantham_matrix.tsv
 	global _grantham_matrix
 	if len(_grantham_matrix) == 0:
-		_grantham_matrix = pd.read_csv("data/grantham.tsv", sep="\t", header=0, index_col=0, comment='#')
+		_grantham_matrix = pd.read_csv(data_path("grantham.tsv"), sep="\t", header=0, index_col=0, comment='#')
 
 	if len(seq1) != len(seq2):
 		raise Exception("Alignemnts of equal length are neccessary to calculate Grantham distance!")
@@ -73,7 +74,7 @@ def sandberg_distance(seq1: Seq, seq2: Seq):
 	global _sandberg_matrix
 	if(len(_sandberg_matrix) == 0):
 		#get z values from Sandberg et al. original paper
-		sandberg_z_values = pd.read_csv("data/sandberg.tsv", sep="\t", header=0, index_col=0, comment='#')
+		sandberg_z_values = pd.read_csv(data_path("sandberg.tsv"), sep="\t", header=0, index_col=0, comment='#')
 		#calculate euclidian distance between the vectors of all amino acids
 		_sandberg_matrix = pd.DataFrame(squareform( pdist(sandberg_z_values) ), index=sandberg_z_values.index.values, columns = sandberg_z_values.index.values )
 	
@@ -140,6 +141,12 @@ def get_hla_locus(name: str):
 	return parts[0]
 
 
+def data_path(name: str):
+	this_dir, this_filename = os.path.split(__file__)
+	data_dir = os.path.join(this_dir, "data")
+	return os.path.join(data_dir, name)
+
+
 def main(argv):
 	parser = OptionParser(usage="usage: %prog [options] HLA-ALLELE1 HLA-ALLELE2", description="Calculates HLA diversity metrics. Pass allele names according HLA nomenclature.")
 	parser.add_option("--whole_protein", action="store_true", default=False, dest="whole_protein", help="Use the whole protein sequence of MHC complex. Otherwise only binding grooves will be considered (Exon 2/3 for MHC class I and exon 2 for class II, respectively).")
@@ -166,7 +173,7 @@ def main(argv):
 			raise Exception("The loci HLA-%s and HLA-%s must be the same" % (locus, locus2))
 
 		#load IMGT/HLA protein aligments
-		protein_alignments = AlignIO.read("data/%s_prot.msf" % locus, "msf")
+		protein_alignments = AlignIO.read(data_path("%s_prot.msf" % locus), "msf")
 
 		seq1 = get_protein_sequence(allele1, protein_alignments, options.whole_protein)
 		seq2 = get_protein_sequence(allele2, protein_alignments, options.whole_protein)
@@ -176,12 +183,12 @@ def main(argv):
 		file = open(options.filename, "r")
 
 		protein_alignments = {
-			"A": AlignIO.read("data/A_prot.msf", "msf"),
-			"B": AlignIO.read("data/B_prot.msf", "msf"),
-			"C": AlignIO.read("data/C_prot.msf", "msf"),
-			"DQA1": AlignIO.read("data/DQA1_prot.msf", "msf"),
-			"DQB1": AlignIO.read("data/DQB1_prot.msf", "msf"),
-			"DRB1": AlignIO.read("data/DRB1_prot.msf", "msf")
+			"A": AlignIO.read(data_path("A_prot.msf"), "msf"),
+			"B": AlignIO.read(data_path("B_prot.msf"), "msf"),
+			"C": AlignIO.read(data_path("C_prot.msf"), "msf"),
+			"DQA1": AlignIO.read(data_path("DQA1_prot.msf"), "msf"),
+			"DQB1": AlignIO.read(data_path("DQB1_prot.msf"), "msf"),
+			"DRB1": AlignIO.read(data_path("DRB1_prot.msf"), "msf")
 		}
 
 		for line in file:
