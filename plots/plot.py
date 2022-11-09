@@ -47,13 +47,12 @@ def scatterplot_pairwise_metrics(loci = ["all", "A", "B", "C", "DQB1", "DRB1"]):
 
 		plt.close()
 
-def histogram(loci = ["all", "A", "B", "C", "DQB1", "DRB1"], metrics = ["PDISTANCE", "JTT", "DAYHOFF", "GRANTHAM", "SANDBERG"]):
-	global data_
+def histogram(data: pd.DataFrame, prefix = "", loci = ["all", "A", "B", "C", "DQB1", "DRB1"], metrics = ["PDISTANCE", "JTT", "DAYHOFF", "GRANTHAM", "SANDBERG"]):
 
 	for locus in loci:
-		data_per_locus = data_.loc[data_["ALLELE1"].str.contains("%s\*" % locus)]
+		data_per_locus = data.loc[data["ALLELE1"].str.contains("%s\*" % locus)]
 		if locus == "all":
-			data_per_locus = data_
+			data_per_locus = data
 
 		fig = plt.figure()
 
@@ -79,28 +78,28 @@ def histogram(loci = ["all", "A", "B", "C", "DQB1", "DRB1"], metrics = ["PDISTAN
 
 			ax.plot(x, p, color="red", linewidth=1)
 
-		fig.savefig("%s_divergence_histograms.png" % locus, dpi=300)
+		fig.savefig("%s%s_divergence_histograms.png" % (prefix,locus), dpi=300)
 
 
 def main(argv):
 	global data_
 	parser = OptionParser(usage="usage: %prog [options] HLA locus", description="Several plots for HLA diversity scores.")
-	parser.add_option("--whole_protein", action="store_true", default=False, dest="whole_protein", help="Use the whole protein sequence of MHC complex. Otherwise only binding grooves will be considered (Exon 2/3 for MHC class I and exon 2 for class II, respectively).")
+	parser.add_option("--distances", dest="filename", help="TSV file with HLA distances as produces by main.py.", default="common_distances_binding_grooves.tsv")
+	parser.add_option("--prefix", dest="prefix", help="Prefix for output plots", default= "")
 	(options, args) = parser.parse_args()
 
-	if options.whole_protein:
-		data_ = pd.read_csv("distances_whole_protein.tsv", sep="\t", header=0)
-	else:
-		data_ = pd.read_csv("distances_binding_grooves.tsv", sep="\t", header=0)
+	print(options.prefix)
+
+	data_ = pd.read_csv(options.filename, sep="\t", header=0)
 
 	data_.rename(columns={"#ALLELE1": "ALLELE1"}, inplace=True)
 
 	if len(args) > 0:
-		scatterplot_pairwise_metrics(args)
-		histogram(args)
+		#scatterplot_pairwise_metrics(args)
+		histogram(data_, options.prefix, args)
 	else:
-		scatterplot_pairwise_metrics()
-		histogram()
+		#scatterplot_pairwise_metrics()
+		histogram(data_, options.prefix)
 
 if __name__ == "__main__":
 	main(sys.argv)

@@ -1,9 +1,11 @@
-all: group_alleles calc_distances plot
+all: group_alleles calc_distances
 
 group_alleles:
-	python ../group_common_alleles.py > allele_pairs.txt
+	python ../group_common_alleles.py > common_allele_pairs.txt
 calc_distances:
-	python ../main.py --whole_protein --batch allele_pairs.txt > distances_whole_protein.tsv
-	python ../main.py --batch allele_pairs.txt > distances_binding_grooves.tsv
-plot:
-	python plot.py
+	python ../main.py --whole_protein --batch common_allele_pairs.txt > common_distances_whole_protein.tsv
+	python ../main.py --batch common_allele_pairs.txt > common_distances_binding_grooves.tsv
+
+distances_somaticandtreatment:
+	python real_hla_genotypes.py
+	python ../main.py --batch real_allele_pairs.txt > real_distances_binding_grooves.tsv
