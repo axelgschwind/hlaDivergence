@@ -4,12 +4,13 @@ all: download_alignments download_common_alleles
 #Robinson J, Barker DJ, Georgiou X, Cooper MA, Flicek P, Marsh SGE: IPD-IMGT/HLA Database. Nucleic Acids Research (2020), 48:D948-55
 #Robinson J, Malik A, Parham P, Bodmer JG, Marsh SGE: IMGT/HLA - a sequence database for the human major histocompatibility complex Tissue Antigens (2000), 55:280-287
 download_alignments:
-	wget ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/msf/A_prot.msf
-	wget ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/msf/B_prot.msf
-	wget ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/msf/C_prot.msf
-	wget ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/msf/DRB1_prot.msf
-	wget ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/msf/DQA1_prot.msf
-	wget ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/msf/DQB1_prot.msf
+	wget ftp.ebi.ac.uk/pub/databases/ipd/imgt/hla/release_version.txt
+	wget https://github.com/ANHIG/IMGTHLA/raw/Latest/msf/A_prot.msf
+	wget https://github.com/ANHIG/IMGTHLA/raw/Latest/msf/B_prot.msf
+	wget https://github.com/ANHIG/IMGTHLA/raw/Latest/msf/C_prot.msf
+	wget https://github.com/ANHIG/IMGTHLA/raw/Latest/msf/DRB1_prot.msf
+	wget https://github.com/ANHIG/IMGTHLA/raw/Latest/msf/DQA1_prot.msf
+	wget https://github.com/ANHIG/IMGTHLA/raw/Latest/msf/DQB1_prot.msf
 
 #Hurley CK et al: Common, intermediate and well-documented HLA alleles in world populations: CIWD version 3.0.0. HLA. 2020 Jun;95(6):516-531. doi: 10.1111/tan.13811. Epub 2020 Jan 31. PMID: 31970929; PMCID: PMC7317522.
 download_common_alleles:

@@ -95,10 +95,10 @@ def main(argv):
 	data_.rename(columns={"#ALLELE1": "ALLELE1"}, inplace=True)
 
 	if len(args) > 0:
-		#scatterplot_pairwise_metrics(args)
+		scatterplot_pairwise_metrics(args)
 		histogram(data_, options.prefix, args)
 	else:
-		#scatterplot_pairwise_metrics()
+		scatterplot_pairwise_metrics()
 		histogram(data_, options.prefix)
 
 if __name__ == "__main__":
