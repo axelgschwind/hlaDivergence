@@ -1,2 +1,4 @@
 .env
 plots/*.png
+plots/*.pdf
+plots/real_*

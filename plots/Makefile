@@ -9,3 +9,8 @@ calc_distances:
 distances_somaticandtreatment:
 	python real_hla_genotypes.py
 	python ../main.py --batch real_allele_pairs.txt > real_distances_binding_grooves.tsv
+
+#Make plots for HLA-B using common alleles and alleles occuring in somatic
+plot:
+	python plot.py --distances common_distances_binding_grooves.tsv --prefix common_binding_groove_ B
+	python plot.py --distances real_distances_binding_grooves.tsv --prefix real_binding_groove_ B

@@ -21,7 +21,7 @@ def parse_allele_name(allele: str):
 	return locus + "*" + ":".join(parts[0:2])
 
 #exon coordinates are compatible with IMGT/HLA protein aligments. Exon 2/3 form binding grooves of MHC class I. Exon 2 forms binding groove of MHC class II
-#exonic "borders" were taken from CCDS and they exclude AA along splicing junctions
+#exonic "borders" were taken from CCDS release 24 and exclude AA along splicing junctions. "Borders" are ajusted for the IMGT alignments
 _binding_groove_coords = {
 	"A": slice(27,227),
 	"B": slice(31,239),
