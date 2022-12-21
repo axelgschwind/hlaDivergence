@@ -150,7 +150,7 @@ def data_path(name: str):
 def main(argv):
 	parser = OptionParser(usage="usage: %prog [options] HLA-ALLELE1 HLA-ALLELE2", description="Calculates HLA diversity metrics. Pass allele names according HLA nomenclature.")
 	parser.add_option("--whole_protein", action="store_true", default=False, dest="whole_protein", help="Use the whole protein sequence of MHC complex. Otherwise only binding grooves will be considered (Exon 2/3 for MHC class I and exon 2 for class II, respectively).")
-	parser.add_option("--batch", dest="filename", help="TSV file with one pair of HLA alleles per row. Use four HLA nomenclature.")
+	parser.add_option("--batch", dest="filename", help="TSV file with an identifier in column 1 and one allele in column 2 and 3. Use four digit HLA nomenclature.")
 
 	(options, args) = parser.parse_args()
 
@@ -192,7 +192,9 @@ def main(argv):
 		}
 
 		for line in file:
-			(allele1, allele2) = line.split('\t')
+			(id, allele1, allele2) = line.split('\t')
+			if line.startswith("#"):
+				continue
 			allele1 = parse_allele_name(allele1)
 			allele2 = parse_allele_name(allele2)
 
@@ -206,7 +208,7 @@ def main(argv):
 			seq1 = get_protein_sequence(allele1, protein_alignments[locus], options.whole_protein)
 			seq2 = get_protein_sequence(allele2, protein_alignments[locus], options.whole_protein)
 
-			print(allele1, allele2, round(grantham_distance(seq1, seq2), 5), round(p_distance(seq1,seq2), 5), round(sandberg_distance(seq1,seq2), 5), round(phylo_distance(seq1,seq2, "dayhoff"), 5), round(phylo_distance(seq1,seq2, "jones"), 5),  sep='\t')
+			print(id, allele1, allele2, round(grantham_distance(seq1, seq2), 5), round(p_distance(seq1,seq2), 5), round(sandberg_distance(seq1,seq2), 5), round(phylo_distance(seq1,seq2, "dayhoff"), 5), round(phylo_distance(seq1,seq2, "jones"), 5),  sep='\t')
 
 if __name__ == "__main__":
 	main(sys.argv)
