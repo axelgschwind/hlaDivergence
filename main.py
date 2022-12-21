@@ -161,7 +161,7 @@ def main(argv):
 	elif(len(args) != 2 and options.filename == None):
 		raise Exception("Specify two HLA alleles!")
 
-	print("#ALLELE1", "ALLELE2", "GRANTHAM", "PDISTANCE", "SANDBERG", "DAYHOFF", "JTT", sep='\t')
+	
 
 	if(len(args) == 2): #input command line alleles
 		allele1 = args[0]
@@ -177,7 +177,7 @@ def main(argv):
 
 		seq1 = get_protein_sequence(allele1, protein_alignments, options.whole_protein)
 		seq2 = get_protein_sequence(allele2, protein_alignments, options.whole_protein)
-
+		print("#ALLELE1", "ALLELE2", "GRANTHAM", "PDISTANCE", "SANDBERG", "DAYHOFF", "JTT", sep='\t')
 		print(allele1, allele2, round(grantham_distance(seq1, seq2), 5), round(p_distance(seq1,seq2), 5), round(sandberg_distance(seq1,seq2), 5), round(phylo_distance(seq1,seq2, "dayhoff"), 5), round(phylo_distance(seq1,seq2, "jones"), 5),  sep='\t')
 	else: #input batch alleles
 		file = open(options.filename, "r")
@@ -191,10 +191,23 @@ def main(argv):
 			"DRB1": AlignIO.read(data_path("DRB1_prot.msf"), "msf")
 		}
 
+
+		print("#ID","ALLELE1", "ALLELE2", "GRANTHAM", "PDISTANCE", "SANDBERG", "DAYHOFF", "JTT", sep='\t')
+
 		for line in file:
-			(id, allele1, allele2) = line.split('\t')
 			if line.startswith("#"):
 				continue
+
+			parts = line.strip().split('\t')
+			id = ""
+			if len(parts) == 2:
+				(allele1, allele2) = parts
+			elif len(parts) == 3:
+				(id, allele1, allele2) = parts
+			else:
+				print("Skipping line of input file: %s" % line.strip())
+
+
 			allele1 = parse_allele_name(allele1)
 			allele2 = parse_allele_name(allele2)
 
@@ -202,13 +215,13 @@ def main(argv):
 			locus = get_hla_locus(allele1)
 			locus2 = get_hla_locus(allele2)
 			if locus != locus2:
-				print(allele1, allele2, "", "", "", sep="\t")
+				print("#Could not parse allele pair %s %s" % (allele1, allele2))
 				continue
 			
 			seq1 = get_protein_sequence(allele1, protein_alignments[locus], options.whole_protein)
 			seq2 = get_protein_sequence(allele2, protein_alignments[locus], options.whole_protein)
 
 			print(id, allele1, allele2, round(grantham_distance(seq1, seq2), 5), round(p_distance(seq1,seq2), 5), round(sandberg_distance(seq1,seq2), 5), round(phylo_distance(seq1,seq2, "dayhoff"), 5), round(phylo_distance(seq1,seq2, "jones"), 5),  sep='\t')
-
+			
 if __name__ == "__main__":
 	main(sys.argv)
